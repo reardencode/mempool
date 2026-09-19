@@ -47,7 +47,10 @@ JsonRPC.prototype.call = function (method, params) {
         'Content-Length': requestJSON.length
       },
       agent: false,
-      rejectUnauthorized: this.opts.ssl && this.opts.sslStrict !== false
+      rejectUnauthorized: this.opts.ssl && this.opts.sslStrict !== false,
+      // Unix JSON-RPC (rbitcoin `{datadir}/rpc.sock`). Node ignores host/port
+      // when this is set; dummy Host is still required.
+      socketPath: this.opts.socketPath || undefined,
     };
 
     if (this.opts.ssl && this.opts.sslCa) {
@@ -55,16 +58,19 @@ JsonRPC.prototype.call = function (method, params) {
       requestOptions.ca = this.opts.sslCa;
     }
 
-    // use HTTP auth if user and password set
-    if (this.opts.cookie) {
-      if (!this.cachedCookie) {
-        this.cachedCookie = readFileSync(this.opts.cookie).toString();
+    // Filesystem-auth unix sockets must not send Authorization. TCP still uses
+    // cookie or user/pass.
+    if (!this.opts.socketPath) {
+      if (this.opts.cookie) {
+        if (!this.cachedCookie) {
+          this.cachedCookie = readFileSync(this.opts.cookie).toString();
+        }
+        // @ts-ignore
+        requestOptions.auth = this.cachedCookie;
+      } else if (this.opts.user && this.opts.pass) {
+        // @ts-ignore
+        requestOptions.auth = this.opts.user + ':' + this.opts.pass;
       }
-      // @ts-ignore
-      requestOptions.auth = this.cachedCookie;
-    } else if (this.opts.user && this.opts.pass) {
-      // @ts-ignore
-      requestOptions.auth = this.opts.user + ':' + this.opts.pass;
     }
 
     // Now we'll make a request to the server

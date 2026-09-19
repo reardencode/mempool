@@ -45,6 +45,7 @@ export interface BitcoinRpcCredentials {
   pass: string;
   timeout: number;
   cookie?: string;
+  socketPath?: string;
 }
 
 export interface HealthCheckHost {

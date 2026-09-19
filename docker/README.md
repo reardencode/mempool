@@ -9,6 +9,7 @@ See a video guide of this installation method by k3tan [on BitcoinTV.com](https:
 Jump to a section in this doc:
 - [Configure with Bitcoin Core Only](#configure-with-bitcoin-core-only)
 - [Configure with Bitcoin Core + Electrum Server](#configure-with-bitcoin-core--electrum-server)
+- [Configure with rbitcoin](#configure-with-rbitcoin)
 - [Further Configuration](#further-configuration)
 
 ## Configure with Bitcoin Core Only
@@ -66,7 +67,7 @@ Then, set the following variables in `docker-compose.yml` so Mempool can connect
 
 Eligible values for `MEMPOOL_BACKEND`:
   - "electrum" if you're using [romanz/electrs](https://github.com/romanz/electrs) or [cculianu/Fulcrum](https://github.com/cculianu/Fulcrum)
-  - "esplora" if you're using [Blockstream/electrs](https://github.com/Blockstream/electrs)
+  - "esplora" if you're using [Blockstream/electrs](https://github.com/Blockstream/electrs), [mempool/electrs](https://github.com/mempool/electrs), or [rbitcoin](https://github.com/reardencode/rbitcoin) (`--esplora-listen` unix socket + `--rpc` `{datadir}/rpc.sock`)
   - "none" if you're not using any Electrum Server
 
 Of course, if your Docker host IP address is different, update accordingly.
@@ -76,6 +77,23 @@ With `bitcoind` and Electrum Server set up, run Mempool with:
 ```bash
 docker-compose up
 ```
+
+## Configure with rbitcoin
+
+[rbitcoin](https://github.com/reardencode/rbitcoin) is a Core-class node with in-process electrs HTTP. Use the same `esplora` backend as mempool/electrs, plus unix JSON-RPC (no cookie / HTTP Basic):
+
+```yaml
+  api:
+    environment:
+      MEMPOOL_BACKEND: "esplora"
+      ESPLORA_UNIX_SOCKET_PATH: "/run/rbitcoin/esplora.sock"
+      CORE_RPC_SOCKET_PATH: "/path/to/datadir/rpc.sock"
+      CORE_RPC_USERNAME: ""
+      CORE_RPC_PASSWORD: ""
+      CORE_RPC_COOKIE: "false"
+```
+
+Run rbitcoin with `--sh-index --esplora-listen /run/rbitcoin/esplora.sock --rpc`. nginx should proxy `/api/` to that Esplora socket and `/api/v1/` to this Node; deny `/api/internal/` at nginx. See rbitcoin `OPERATOR.md`.
 
 ## Further Configuration
 
@@ -162,7 +180,8 @@ Corresponding `docker-compose.yml` overrides:
     "PASSWORD": "mempool",
     "TIMEOUT": 60000,
     "COOKIE": false,
-    "COOKIE_PATH": ""
+    "COOKIE_PATH": "",
+    "SOCKET_PATH": ""
   },
 ```
 
@@ -177,6 +196,7 @@ Corresponding `docker-compose.yml` overrides:
       CORE_RPC_TIMEOUT: 60000
       CORE_RPC_COOKIE: false
       CORE_RPC_COOKIE_PATH: ""
+      CORE_RPC_SOCKET_PATH: ""
       ...
 ```
 
@@ -233,7 +253,8 @@ Corresponding `docker-compose.yml` overrides:
     "PASSWORD": "mempool",
     "TIMEOUT": 60000,
     "COOKIE": false,
-    "COOKIE_PATH": ""
+    "COOKIE_PATH": "",
+    "SOCKET_PATH": ""
   },
 ```
 
@@ -248,6 +269,7 @@ Corresponding `docker-compose.yml` overrides:
       SECOND_CORE_RPC_TIMEOUT: ""
       SECOND_CORE_RPC_COOKIE: false
       SECOND_CORE_RPC_COOKIE_PATH: ""
+      SECOND_CORE_RPC_SOCKET_PATH: ""
       ...
 ```
 

@@ -78,6 +78,7 @@ describe('Mempool Backend Config', () => {
         COOKIE: false,
         COOKIE_PATH: '/bitcoin/.cookie',
         DEBUG_LOG_PATH: '',
+        SOCKET_PATH: '',
       });
 
       expect(config.SECOND_CORE_RPC).toStrictEqual({
@@ -87,7 +88,8 @@ describe('Mempool Backend Config', () => {
         PASSWORD: 'mempool',
         TIMEOUT: 60000,
         COOKIE: false,
-        COOKIE_PATH: '/bitcoin/.cookie'
+        COOKIE_PATH: '/bitcoin/.cookie',
+        SOCKET_PATH: '',
       });
 
       expect(config.DATABASE).toStrictEqual({

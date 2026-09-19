@@ -9,6 +9,7 @@ const nodeRpcCredentials: BitcoinRpcCredentials = {
   pass: config.SECOND_CORE_RPC.PASSWORD,
   timeout: config.SECOND_CORE_RPC.TIMEOUT,
   cookie: config.SECOND_CORE_RPC.COOKIE ? config.SECOND_CORE_RPC.COOKIE_PATH : undefined,
+  socketPath: config.SECOND_CORE_RPC.SOCKET_PATH || undefined,
 };
 
 export default new bitcoin.Client(nodeRpcCredentials);

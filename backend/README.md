@@ -101,9 +101,11 @@ Edit `mempool-config.json` as needed.
 
 In particular, make sure:
 - the correct Bitcoin Core RPC credentials are specified in `CORE_RPC`
+  (`SOCKET_PATH` for a unix JSON-RPC socket such as rbitcoin `{datadir}/rpc.sock`;
+  leave `USERNAME`/`PASSWORD` empty and `COOKIE` false — no `Authorization` header)
 - the correct `BACKEND` is specified in `MEMPOOL`:
   - "electrum" if you're using [romanz/electrs](https://github.com/romanz/electrs) or [cculianu/Fulcrum](https://github.com/cculianu/Fulcrum)
-  - "esplora" if you're using [mempool/electrs](https://github.com/mempool/electrs)
+  - "esplora" if you're using [mempool/electrs](https://github.com/mempool/electrs) or [rbitcoin](https://github.com/reardencode/rbitcoin) (`ESPLORA.UNIX_SOCKET_PATH` → `--esplora-listen`)
   - "none" if you're not using any Electrum Server
 
 ### 6. Run Mempool Backend

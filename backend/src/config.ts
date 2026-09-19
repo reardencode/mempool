@@ -89,6 +89,7 @@ interface IConfig {
     COOKIE: boolean;
     COOKIE_PATH: string;
     DEBUG_LOG_PATH: string;
+    SOCKET_PATH: string;
   };
   SECOND_CORE_RPC: {
     HOST: string;
@@ -98,6 +99,7 @@ interface IConfig {
     TIMEOUT: number;
     COOKIE: boolean;
     COOKIE_PATH: string;
+    SOCKET_PATH: string;
   };
   DATABASE: {
     ENABLED: boolean;
@@ -243,6 +245,7 @@ const defaults: IConfig = {
     'COOKIE': false,
     'COOKIE_PATH': '/bitcoin/.cookie',
     'DEBUG_LOG_PATH': '',
+    'SOCKET_PATH': '',
   },
   'SECOND_CORE_RPC': {
     'HOST': '127.0.0.1',
@@ -251,7 +254,8 @@ const defaults: IConfig = {
     'PASSWORD': 'mempool',
     'TIMEOUT': 60000,
     'COOKIE': false,
-    'COOKIE_PATH': '/bitcoin/.cookie'
+    'COOKIE_PATH': '/bitcoin/.cookie',
+    'SOCKET_PATH': '',
   },
   'DATABASE': {
     'ENABLED': true,
