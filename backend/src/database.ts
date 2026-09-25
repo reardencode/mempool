@@ -5,6 +5,7 @@ import { createPool, Pool, PoolConnection } from 'mysql2/promise';
 import logger, { LogLevel } from './logger';
 import { FieldPacket, OkPacket, PoolOptions, ResultSetHeader, RowDataPacket } from 'mysql2/typings/mysql';
 import { execSync } from 'child_process';
+import { AsyncLocalStorage } from 'async_hooks';
 
  class DB {
   constructor() {
@@ -15,6 +16,10 @@ import { execSync } from 'child_process';
     }
   }
   private pool: Pool | null = null;
+  // Connection of the enclosing $transaction(), if any. A pooled query may land on any
+  // idle connection, so BEGIN/COMMIT sent through the pool can leave a connection stuck
+  // in an open transaction holding row locks.
+  private transactionConnection = new AsyncLocalStorage<PoolConnection>();
   private poolConfig: PoolOptions = {
     port: config.DATABASE.PORT,
     database: config.DATABASE.DATABASE,
@@ -39,6 +44,7 @@ import { execSync } from 'child_process';
     OkPacket[] | ResultSetHeader>(query, params?, errorLogLevel: LogLevel | 'silent' = 'debug', connection?: PoolConnection): Promise<[T, FieldPacket[]]>
   {
     this.checkDBFlag();
+    connection = connection ?? this.transactionConnection.getStore();
     let hardTimeout;
     if (query?.timeout != null) {
       hardTimeout = Math.floor(query.timeout * 1.1);
@@ -68,8 +74,8 @@ import { execSync } from 'child_process';
       });
     } else {
       try {
-        const pool = await this.getPool();
-        return pool.query(query, params);
+        const pool = connection ?? await this.getPool();
+        return pool.query(query, params) as Promise<[T, FieldPacket[]]>;
       } catch (e) {
         if (errorLogLevel !== 'silent') {
           logger[errorLogLevel](`database query "${query?.sql?.slice(0, 160) || (typeof(query) === 'string' || query instanceof String ? query?.slice(0, 160) : 'unknown query')}" failed!`);
@@ -121,6 +127,31 @@ import { execSync } from 'child_process';
     }
   }
 
+
+  /**
+   * Run fn in one transaction: every DB.query awaited inside it uses the same connection.
+   * Commits when fn resolves, rolls back and rethrows when it rejects.
+   * @asyncUnsafe
+   */
+  public async $transaction<T>(fn: () => Promise<T>): Promise<T> {
+    const pool = await this.getPool();
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const result = await this.transactionConnection.run(connection, fn);
+      await connection.commit();
+      return result;
+    } catch (e) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        logger.warn('Failed to rollback db transaction: ' + (rollbackError instanceof Error ? rollbackError.message : rollbackError));
+      }
+      throw e;
+    } finally {
+      connection.release();
+    }
+  }
 
   /** @asyncSafe */
   public async checkDbConnection() {
