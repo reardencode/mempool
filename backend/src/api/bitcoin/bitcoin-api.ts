@@ -494,6 +494,10 @@ class BitcoinApi implements AbstractBitcoinApi {
 
   public startHealthChecks(): void {};
 
+  $getFeeEstimates(): Promise<Record<string, number>> {
+    return Promise.reject(new Error('fee estimates require an esplora backend'));
+  }
+
   public getHealthStatus() {
     return [];
   }

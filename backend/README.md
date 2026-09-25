@@ -107,6 +107,9 @@ In particular, make sure:
   - "electrum" if you're using [romanz/electrs](https://github.com/romanz/electrs) or [cculianu/Fulcrum](https://github.com/cculianu/Fulcrum)
   - "esplora" if you're using [mempool/electrs](https://github.com/mempool/electrs) or [rbitcoin](https://github.com/reardencode/rbitcoin) (`ESPLORA.UNIX_SOCKET_PATH` → `--esplora-listen`)
   - "none" if you're not using any Electrum Server
+- `FEE_ESTIMATES` in `MEMPOOL` is "mempool" (default) to derive recommended fees from projected
+  mempool blocks, or "node" to serve the Esplora `/fee-estimates` rates for 1/2/3/144 blocks
+  (next block, two blocks, three blocks, and about a day), falling back to "mempool" while a target is missing
 
 ### 6. Run Mempool Backend
 

@@ -34,6 +34,8 @@ export interface AbstractBitcoinApi {
   $getOutSpendsByOutpoint(outpoints: { txid: string, vout: number }[]): Promise<IEsploraApi.Outspend[]>;
   $getCoinbaseTx(blockhash: string): Promise<IEsploraApi.Transaction>;
   $getAddressTransactionSummary(address: string): Promise<IEsploraApi.AddressTxSummary[]>;
+  /** Esplora `/fee-estimates`: confirmation target (blocks) → sat/vB. */
+  $getFeeEstimates(): Promise<Record<string, number>>;
 
   startHealthChecks(): void;
   getHealthStatus(): HealthCheckHost[];

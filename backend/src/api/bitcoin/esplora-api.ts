@@ -612,6 +612,10 @@ class ElectrsApi implements AbstractBitcoinApi {
     return this.failoverRouter.$get<IEsploraApi.AddressTxSummary[]>('/address/' + address + '/txs/summary');
   }
 
+  $getFeeEstimates(): Promise<Record<string, number>> {
+    return this.failoverRouter.$get<Record<string, number>>('/fee-estimates');
+  }
+
   public startHealthChecks(): void {
     this.failoverRouter.startHealthChecks();
   }

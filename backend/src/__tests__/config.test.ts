@@ -44,6 +44,7 @@ describe('Mempool Backend Config', () => {
         POOLS_UPDATE_DELAY: 604800,
         AUDIT: false,
         RUST_GBT: true,
+        FEE_ESTIMATES: 'mempool',
         LIMIT_GBT: false,
         CLUSTER_MEMPOOL: false,
         CLUSTER_MEMPOOL_INDEXING: false,

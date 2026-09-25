@@ -16,6 +16,7 @@ import logger from './logger';
 import backendInfo from './api/backend-info';
 import loadingIndicators from './api/loading-indicators';
 import mempool from './api/mempool';
+import feeApi from './api/fee-api';
 import elementsParser from './api/liquid/elements-parser';
 import databaseMigration from './api/database-migration';
 import syncAssets from './sync-assets';
@@ -280,6 +281,7 @@ class Server {
           logger.debug(msg);
         }
       }
+      await feeApi.$updateNodeEstimates();
       const newMempool = await bitcoinApi.$getRawMempool();
       const minFeeMempool = memPool.limitGBT ? await bitcoinSecondClient.getRawMemPool() : null;
       const minFeeTip = memPool.limitGBT ? await bitcoinSecondClient.getBlockCount() : -1;

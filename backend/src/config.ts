@@ -37,6 +37,7 @@ interface IConfig {
     CLUSTER_MEMPOOL: boolean;
     CLUSTER_MEMPOOL_INDEXING: boolean;
     RUST_GBT: boolean;
+    FEE_ESTIMATES: 'mempool' | 'node';
     LIMIT_GBT: boolean;
     CPFP_INDEXING: boolean;
     MAX_BLOCKS_BULK_QUERY: number;
@@ -212,6 +213,7 @@ const defaults: IConfig = {
     'CLUSTER_MEMPOOL': false,
     'CLUSTER_MEMPOOL_INDEXING': false,
     'RUST_GBT': true,
+    'FEE_ESTIMATES': 'mempool',
     'LIMIT_GBT': false,
     'CPFP_INDEXING': false,
     'MAX_BLOCKS_BULK_QUERY': 0,
