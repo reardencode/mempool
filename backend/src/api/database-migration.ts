@@ -1372,16 +1372,11 @@ class DatabaseMigration {
     logger.notice(`MIGRATIONS: ${version > 0 ? 'Upgrading' : 'Initializing'} database schema version number to ${DatabaseMigration.currentVersion}`);
     transactionQueries.push(this.getUpdateToLatestSchemaVersionQuery());
 
-    try {
-      await this.$executeQuery('START TRANSACTION;');
+    await DB.$transaction(/** @asyncUnsafe */ async () => {
       for (const query of transactionQueries) {
         await this.$executeQuery(query);
       }
-      await this.$executeQuery('COMMIT;');
-    } catch (e) {
-      await this.$executeQuery('ROLLBACK;');
-      throw e;
-    }
+    });
   }
 
   /**
